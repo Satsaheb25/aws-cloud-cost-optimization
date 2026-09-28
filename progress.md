@@ -116,3 +116,32 @@ S3 Versioning and storage-class selection should be considered together because 
 ### Status
 
 **Completed**
+
+---
+
+## Phase 9 — AWS Cost Explorer & Cost Visibility
+
+**Date:** 2026-09-28  
+**Region:** ap-south-1 (Mumbai)
+
+### Completed
+
+- Reviewed AWS Cost Explorer
+- Verified Cost Explorer API access through AWS CLI
+- Analyzed September 2026 billing-period cost
+- Queried costs using the UnblendedCost metric
+- Analyzed costs by AWS service
+- Verified current estimated cost is approximately $0.00 USD
+- Connected Cost Explorer analysis with S3 cost optimization practices
+
+### Key Learning
+
+Cost optimization requires visibility into actual cloud spending. Cost Explorer can provide service-level and time-based cost analysis.
+
+### Documentation
+
+- labs/aws-cost-explorer-cost-visibility.md
+
+### Status
+
+**Completed**
