@@ -85,3 +85,34 @@ The S3 lab successfully demonstrated:
 - [ ] Automated cleanup scripts
 - [ ] Testing and documentation
 - [ ] Final project review
+
+---
+
+## Phase 8 — S3 Storage Class & Cost Analysis
+
+**Date:** 2026-09-28  
+**Region:** ap-south-1 (Mumbai)
+
+### Completed
+
+- Reviewed S3 storage classes and access patterns
+- Verified S3 Standard as the default storage class
+- Changed lifecycle-test/object1.txt to STANDARD_IA
+- Verified StorageClass: STANDARD_IA using head-object
+- Verified the new storage-class version using list-object-versions
+- Confirmed the previous STANDARD version remained as a noncurrent version
+- Documented storage-class cost and access considerations
+
+### Key Learning
+
+Storage-class optimization must consider access frequency, retrieval requirements, retention period, resilience requirements, request costs, and minimum storage duration.
+
+S3 Versioning and storage-class selection should be considered together because different object versions can have different storage classes.
+
+### Documentation
+
+- labs/s3-storage-class-cost-analysis.md
+
+### Status
+
+**Completed**
