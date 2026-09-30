@@ -1,4 +1,4 @@
-﻿name: Terraform CI
+name: Terraform CI
 
 on:
   push:
@@ -27,6 +27,11 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
+
+      - name: Debug GitHub OIDC claims
+        uses: github/actions-oidc-debugger@main
+        with:
+          audience: sts.amazonaws.com
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
