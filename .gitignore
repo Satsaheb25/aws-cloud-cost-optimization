@@ -1,4 +1,4 @@
-temp/
+﻿temp/
 
 # Generated audit reports
 reports/*.json
@@ -7,3 +7,16 @@ reports/*.csv
 # Python cache
 __pycache__/
 *.pyc
+
+# Terraform working directory
+terraform/.terraform/
+
+# Terraform state files
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/crash.log
+terraform/crash.*.log
+
+# Terraform variable files that may contain secrets
+terraform/*.tfvars
+terraform/*.tfvars.json
