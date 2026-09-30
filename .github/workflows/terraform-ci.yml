@@ -8,9 +8,13 @@ on:
     branches:
       - master
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   terraform:
-    name: Terraform Validation
+    name: Terraform Validation and Plan
     runs-on: ubuntu-latest
 
     defaults:
@@ -24,6 +28,15 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::872575360359:role/GitHubActionsTerraformPlanRole
+          aws-region: ap-south-1
+
+      - name: Verify AWS identity
+        run: aws sts get-caller-identity
+
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
 
@@ -32,3 +45,6 @@ jobs:
 
       - name: Terraform Validate
         run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -no-color
