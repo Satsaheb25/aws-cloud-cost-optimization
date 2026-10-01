@@ -1,4 +1,4 @@
-﻿name: Terraform CI
+﻿name: AWS Cost Optimization CI/CD
 
 on:
   push:
@@ -13,6 +13,37 @@ permissions:
   contents: read
 
 jobs:
+  python:
+    name: Python Audit Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Python compile check
+        run: python -m py_compile scripts/aws_cost_audit.py
+
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    needs: python
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t aws-cost-audit:ci .
+
   terraform:
     name: Terraform Validation and Plan
     runs-on: ubuntu-latest
