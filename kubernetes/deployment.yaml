@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aws-cost-audit
+  namespace: aws-cost-optimization
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aws-cost-audit
+  template:
+    metadata:
+      labels:
+        app: aws-cost-audit
+    spec:
+      containers:
+        - name: aws-cost-audit
+          image: host.docker.internal:5000/aws-cost-audit:ci
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: AWS_DEFAULT_REGION
+              value: ap-south-1
