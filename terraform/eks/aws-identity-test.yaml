@@ -1,0 +1,16 @@
+﻿apiVersion: v1
+kind: Pod
+metadata:
+  name: aws-identity-test
+  namespace: cost-audit
+spec:
+  serviceAccountName: cost-audit
+  restartPolicy: Never
+  containers:
+    - name: aws-cli
+      image: amazon/aws-cli:2
+      command:
+        - /bin/sh
+        - -c
+        - |
+          aws sts get-caller-identity
