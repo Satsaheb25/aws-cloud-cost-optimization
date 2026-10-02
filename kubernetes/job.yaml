@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: aws-cost-audit
+  namespace: aws-cost-optimization
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: aws-cost-audit
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: aws-cost-audit
+          image: host.docker.internal:5000/aws-cost-audit:ci
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: AWS_DEFAULT_REGION
+              value: ap-south-1
