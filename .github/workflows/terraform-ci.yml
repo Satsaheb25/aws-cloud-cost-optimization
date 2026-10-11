@@ -32,6 +32,9 @@ jobs:
       - name: Python compile check
         run: python -m py_compile scripts/aws_cost_audit.py
 
+      - name: Run offline unit tests
+        run: python -m unittest discover -s tests -v
+
   docker:
     name: Docker Build
     runs-on: ubuntu-latest

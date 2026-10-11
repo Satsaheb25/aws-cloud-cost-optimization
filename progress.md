@@ -572,3 +572,41 @@ The configuration provides the infrastructure foundation required for a future E
 ### Next
 
 Continue Phase 18 with secure AWS workload identity for Kubernetes workloads, avoiding long-lived AWS access keys in Pods.
+
+---
+
+## Phase 22 - AWS Cost Audit Unit Testing and CI Validation
+
+**Date:** 2026-10-11
+**Status:** Local implementation and validation completed; remote CI pending
+
+### Completed
+
+- Added offline unit tests for JSON report generation.
+- Added offline unit tests for CSV resource-field validation.
+- Added a test for CSV output with zero resources.
+- Ran all three tests successfully.
+- Compiled the audit script and test module successfully.
+- Added the unit-test command to GitHub Actions.
+- Added Git ignore rules for Terraform state backups and the temporary state-address file.
+
+### Validation
+
+- Unit tests: 3 passed.
+- Python compilation: passed.
+- Git diff whitespace check: passed.
+- GitHub Actions remote execution: pending.
+
+### Cost and Security Safety
+
+- No AWS resources were created or modified for unit testing.
+- Terraform state files and backups remain excluded from Git.
+- The existing AWS audit remains read-only.
+
+### Documentation
+
+- `labs/phase-22-audit-unit-testing.md`
+
+### Next
+
+Review changes, commit and push the implementation, then verify the GitHub Actions result.

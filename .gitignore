@@ -18,3 +18,9 @@ __pycache__/
 **/*.tfvars.json
 **/*.tfplan
 **/*.plan
+
+# Terraform state and sensitive local backups
+*.tfstate
+*.tfstate.*
+terraform-state-backup-*.json
+terraform/eks/stale-state-addresses.txt
