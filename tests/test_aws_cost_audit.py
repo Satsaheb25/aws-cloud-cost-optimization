@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from scripts import aws_cost_audit
+from botocore.exceptions import BotoCoreError, ClientError
 
 
 class TestAuditReports(unittest.TestCase):
@@ -98,3 +99,60 @@ class TestAuditReports(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+class TestSafeCall(unittest.TestCase):
+    def test_successful_call_returns_result_without_error(self):
+        result, error = aws_cost_audit.safe_call(
+            "EC2 Instance",
+            lambda: ["instance-1"],
+        )
+
+        self.assertEqual(result, ["instance-1"])
+        self.assertIsNone(error)
+
+    def test_client_error_returns_default_and_error_details(self):
+        exception = ClientError(
+            {
+                "Error": {
+                    "Code": "AccessDenied",
+                    "Message": "Access denied",
+                }
+            },
+            "DescribeInstances",
+        )
+
+        result, error = aws_cost_audit.safe_call(
+            "EC2 Instance",
+            lambda: (_ for _ in ()).throw(exception),
+            default={"Reservations": []},
+        )
+
+        self.assertEqual(result, {"Reservations": []})
+        self.assertIsNotNone(error)
+        self.assertEqual(error["resource_type"], "EC2 Instance")
+        self.assertIn("AccessDenied", error["error"])
+
+    def test_botocore_error_returns_default_and_error_details(self):
+        exception = BotoCoreError()
+
+        result, error = aws_cost_audit.safe_call(
+            "S3 Bucket",
+            lambda: (_ for _ in ()).throw(exception),
+            default={"Buckets": []},
+        )
+
+        self.assertEqual(result, {"Buckets": []})
+        self.assertIsNotNone(error)
+        self.assertEqual(error["resource_type"], "S3 Bucket")
+
+    def test_unexpected_error_returns_default_and_error_details(self):
+        result, error = aws_cost_audit.safe_call(
+            "Load Balancer",
+            lambda: 1 / 0,
+            default={"LoadBalancers": []},
+        )
+
+        self.assertEqual(result, {"LoadBalancers": []})
+        self.assertIsNotNone(error)
+        self.assertEqual(error["resource_type"], "Load Balancer")
+        self.assertIn("Unexpected error", error["error"])

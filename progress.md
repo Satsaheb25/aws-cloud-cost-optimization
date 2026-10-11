@@ -610,3 +610,42 @@ Continue Phase 18 with secure AWS workload identity for Kubernetes workloads, av
 ### Next
 
 Review changes, commit and push the implementation, then verify the GitHub Actions result.
+
+---
+
+## Phase 23 - AWS Cost Audit Quality and Security Hardening
+
+**Date:** 2026-10-11
+**Status:** Local validation completed; remote CI verification pending
+
+### Completed
+
+- Added four offline tests for successful calls, AWS ClientError, BotoCoreError, and unexpected exceptions.
+- Expanded the unit test suite from three to seven tests.
+- Added `scripts/check_secrets.py` to scan Git-tracked files for common AWS credential patterns.
+- Integrated the credential-pattern check into the Python GitHub Actions job.
+- Added `labs/phase-23-security-hardening.md`.
+
+### Validation
+
+- Unit tests: 7 passed.
+- Python compilation: passed.
+- Credential-pattern check: passed; 45 tracked files scanned at the last check.
+- Git diff check: no whitespace errors reported; line-ending warnings appeared.
+- AWS infrastructure changes: none performed for this phase.
+
+### Cost and Security Safety
+
+- Tests use local files and mocked failures rather than live AWS API calls.
+- The credential-pattern check is a basic safeguard, not a complete secret scanner.
+- Review generated reports before sharing because resource metadata and API errors may contain operational details.
+- No Terraform apply or destroy operation was performed.
+
+### Documentation
+
+- `labs/phase-23-security-hardening.md`
+- `progress.md`
+
+### Next
+
+Review the complete diff, commit and push the intended changes, and verify the remote GitHub Actions run.
