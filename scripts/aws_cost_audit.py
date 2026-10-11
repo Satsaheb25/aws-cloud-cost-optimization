@@ -355,6 +355,9 @@ def main():
     all_resources = []
     errors = []
 
+    successful_checks = 0
+    failed_checks = 0
+
     for name, audit_function in audit_functions:
         try:
             resources, error = audit_function()
@@ -365,6 +368,9 @@ def main():
 
             if error:
                 errors.append(error)
+                failed_checks += 1
+            else:
+                successful_checks += 1
 
         except Exception as exc:
             errors.append(
@@ -373,6 +379,7 @@ def main():
                     "error": str(exc),
                 }
             )
+            failed_checks += 1
 
     resource_types = [
         "EC2 Instance",
@@ -398,11 +405,24 @@ def main():
             "risk": classify(resource_type, count),
         }
 
+    if failed_checks == 0:
+        audit_status = "PASS"
+    elif successful_checks == 0:
+        audit_status = "FAILED"
+    else:
+        audit_status = "PARTIAL"
+
     report = {
         "project": "AWS Cloud Cost Optimization & DevOps Automation Platform",
         "region": REGION,
         "audit_timestamp_utc": utc_timestamp(),
         "read_only": True,
+        "audit_status": audit_status,
+        "check_summary": {
+            "total_checks": len(audit_functions),
+            "successful_checks": successful_checks,
+            "failed_checks": failed_checks,
+        },
         "summary": counts,
         "resources": all_resources,
         "errors": errors,
@@ -441,7 +461,7 @@ def main():
     print("Audit completed.")
     print("No AWS resources were created, modified, or deleted.")
 
-    return 0
+    return 0 if audit_status == "PASS" else 1
 
 
 if __name__ == "__main__":

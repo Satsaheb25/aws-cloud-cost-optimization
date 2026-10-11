@@ -651,3 +651,39 @@ Review changes, commit and push the implementation, then verify the GitHub Actio
 Review the complete diff, commit and push the intended changes, and verify the remote GitHub Actions run.
 
 **Status: Completed** — Local validation passed and all GitHub Actions jobs are green.
+
+---
+
+## Phase 24 - AWS Cost Audit Status and Failure Reporting
+
+**Date:** 2026-10-11
+**Status:** Local implementation and validation completed; remote CI verification pending
+
+### Completed
+
+- Added `PASS`, `PARTIAL`, and `FAILED` audit statuses.
+- Added total, successful, and failed check counts to the JSON report.
+- Configured exit code `0` for a full pass and `1` for partial or complete failure.
+- Added three offline tests covering all status outcomes.
+- Added `labs/phase-24-audit-status.md`.
+
+### Validation
+
+- Unit tests: 10 passed.
+- Python compilation: passed.
+- Git diff check: passed with no whitespace errors.
+- Remote GitHub Actions verification: pending.
+
+### Cost and Security Safety
+
+- Status tests mock the AWS session and audit functions.
+- No live AWS resources were created, modified, or deleted for these tests.
+- The audit remains read-only.
+
+### Interview Perspective
+
+A reliable audit must distinguish a complete pass from partial visibility and total failure. Exit codes let CI/CD pipelines detect incomplete audits instead of silently treating them as successful.
+
+### Next
+
+Review the complete code and documentation diff, then commit and push the intended Phase 24 changes after approval. Verify GitHub Actions.

@@ -2,6 +2,7 @@
 import json
 import tempfile
 import unittest
+from contextlib import ExitStack
 from pathlib import Path
 from unittest.mock import patch
 
@@ -156,3 +157,76 @@ class TestSafeCall(unittest.TestCase):
         self.assertIsNotNone(error)
         self.assertEqual(error["resource_type"], "Load Balancer")
         self.assertIn("Unexpected error", error["error"])
+
+
+class TestAuditStatus(unittest.TestCase):
+    AUDIT_FUNCTIONS = (
+        "audit_ec2",
+        "audit_ebs",
+        "audit_snapshots",
+        "audit_elastic_ips",
+        "audit_nat_gateways",
+        "audit_load_balancers",
+        "audit_s3",
+    )
+
+    def run_audit_with_outcomes(self, outcomes):
+        with (
+            patch.object(aws_cost_audit.boto3, "Session") as session_factory,
+            patch.object(aws_cost_audit, "write_json_report") as json_writer,
+            patch.object(aws_cost_audit, "write_csv_report"),
+        ):
+            session_factory.return_value.client.return_value = object()
+
+            with ExitStack() as stack:
+                for name, outcome in zip(self.AUDIT_FUNCTIONS, outcomes):
+                    stack.enter_context(
+                        patch.object(aws_cost_audit, name, return_value=outcome)
+                    )
+
+                exit_code = aws_cost_audit.main()
+
+            report = json_writer.call_args.args[0]
+
+        return exit_code, report
+
+    def test_all_checks_succeed_returns_pass(self):
+        outcomes = [([], None)] * 7
+
+        exit_code, report = self.run_audit_with_outcomes(outcomes)
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(report["audit_status"], "PASS")
+        self.assertEqual(
+            report["check_summary"],
+            {
+                "total_checks": 7,
+                "successful_checks": 7,
+                "failed_checks": 0,
+            },
+        )
+
+    def test_some_checks_fail_returns_partial(self):
+        error = {"resource_type": "EC2", "error": "AccessDenied"}
+        outcomes = [([], error)] + [([], None)] * 6
+
+        exit_code, report = self.run_audit_with_outcomes(outcomes)
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(report["audit_status"], "PARTIAL")
+        self.assertEqual(report["check_summary"]["successful_checks"], 6)
+        self.assertEqual(report["check_summary"]["failed_checks"], 1)
+        self.assertEqual(len(report["errors"]), 1)
+
+    def test_all_checks_fail_returns_failed(self):
+        outcomes = [
+            ([], {"resource_type": name, "error": "AccessDenied"})
+            for name in self.AUDIT_FUNCTIONS
+        ]
+
+        exit_code, report = self.run_audit_with_outcomes(outcomes)
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(report["audit_status"], "FAILED")
+        self.assertEqual(report["check_summary"]["successful_checks"], 0)
+        self.assertEqual(report["check_summary"]["failed_checks"], 7)
