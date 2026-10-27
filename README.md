@@ -1,36 +1,283 @@
-﻿# AWS Cloud Cost Optimization
+# AWS Cloud Cost Optimization & DevOps Automation Platform
 
-Hands-on AWS learning project focused on cloud cost visibility, resource cleanup, storage optimization, automation, and infrastructure management.
+A hands-on AWS learning project focused on resource visibility,
+cost-awareness, cleanup, Python/Boto3 automation, Docker, Terraform
+validation, and CI/CD security.
 
-## Current Progress
+**Status:** Active --- hands-on AWS cost optimization and DevOps
+learning project.
 
-### Completed
+> **Scope:** The current audit inventories resources and reports
+> visibility/errors. It is not a complete billing or spend-analysis
+> engine; that would require billing data integration.
 
-- AWS CLI environment configured
-- AWS identity verified using AWS STS
-- Amazon S3 bucket created in Mumbai (ap-south-1)
-- S3 object uploaded and verified
-- S3 Versioning enabled
-- Multiple object versions created
-- S3 Delete Marker created and removed
-- Object versions permanently deleted
-- Pre-versioning null version identified and deleted
-- S3 object completely cleaned up
-- S3 bucket deleted after validation
+## Features
 
-## AWS Region
+-   Read-only inventory audit for EC2 instances, EBS volumes and
+    snapshots, Elastic IPs, NAT gateways, load balancers, and S3
+    buckets.
+-   JSON and CSV reports.
+-   Explicit `UNKNOWN` status when an AWS API request fails, rather than
+    incorrectly reporting zero resources.
+-   Dockerized audit execution.
+-   Python unit tests and secret-pattern checks.
+-   GitHub Actions validation for Python, tests, secret checks, Docker
+    builds, and Terraform configuration.
+-   Terraform configuration-only validation.
+-   Documented S3 versioning and cleanup lab.
 
-`ap-south-1` — Mumbai, India
+## Architecture
 
-## Key Services
+``` text
+Python + Boto3 audit
+  ├── EC2 / EBS / Snapshots
+  ├── Elastic IPs / NAT gateways / Load balancers
+  └── S3 buckets
+          |
+          v
+Visibility classification + API error details
+          |
+          +--> JSON report
+          +--> CSV report
 
-- Amazon S3
-- AWS CLI
-- AWS STS
-- AWS Cost Management
-- Terraform
-- Python / Boto3
+GitHub Actions
+  ├── Python validation and tests
+  ├── Secret-pattern checks
+  ├── Docker build
+  └── Terraform fmt / init / validate
+```
 
-## Project Status
+The audit is designed to be read-only: it inspects resources and reports
+errors; it does not create, modify, or delete AWS resources.
 
-**Active — hands-on AWS cost optimization learning project.**
+## Technology Stack
+
+  -----------------------------------------------------------------------
+  Technology                          Purpose
+  ----------------------------------- -----------------------------------
+  AWS, AWS CLI, STS                   Cloud services, CLI access,
+                                      identity verification
+
+  Python and Boto3                    Resource inventory and automation
+
+  JSON and CSV                        Audit reports
+
+  Docker                              Reproducible execution
+
+  Terraform                           Infrastructure-as-code learning and
+                                      validation
+
+  Git and GitHub                      Version control and collaboration
+
+  GitHub Actions                      Automated validation
+  -----------------------------------------------------------------------
+
+## Audit Status Semantics
+
+  Result      Meaning
+  ----------- ------------------------------------------------------
+  `0 / OK`    Check succeeded and no matching resources were found
+  `UNKNOWN`   The category could not be checked reliably
+  `PARTIAL`   Some audit checks failed and others succeeded
+  `FAILED`    All audit checks failed
+
+The JSON report includes `resource_visibility`, which records visibility
+status and a resource count when available. API error details are also
+reported. Permission failures must not be treated as proof that no
+resources exist.
+
+## Repository Structure
+
+``` text
+aws-cloud-cost-optimization/
+├── .github/workflows/terraform-ci.yml
+├── docs/
+├── iam/
+├── kubernetes/
+├── labs/
+├── scripts/
+│   ├── aws_cost_audit.py
+│   └── check_secrets.py
+├── terraform/
+├── tests/
+│   └── test_aws_cost_audit.py
+├── .dockerignore
+├── .gitignore
+├── Dockerfile
+├── requirements.txt
+├── progress.md
+└── README.md
+```
+
+## Getting Started
+
+### Prerequisites
+
+Install Python 3.13 or a supported version, AWS CLI, Docker Desktop,
+Terraform, and Git. Commands below use PowerShell on Windows.
+
+### 1. Clone
+
+``` powershell
+git clone https://github.com/Satsaheb25/aws-cloud-cost-optimization.git
+Set-Location aws-cloud-cost-optimization
+```
+
+### 2. Verify AWS identity
+
+Authenticate with your configured AWS CLI method, then run:
+
+``` powershell
+aws sts get-caller-identity
+```
+
+Confirm the account and identity are the ones intended for the lab. Use
+appropriately restricted IAM permissions and enable MFA.
+
+### 3. Install Python dependencies
+
+``` powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 4. Run the audit
+
+``` powershell
+python scripts/aws_cost_audit.py
+```
+
+Reports are written to `reports/aws_cost_audit.json` and
+`reports/aws_cost_audit.csv`. The IAM identity needs read permissions
+for the resource categories being inspected. Investigate permission
+errors rather than treating them as empty results.
+
+### 5. Run tests and secret checks
+
+``` powershell
+python -m py_compile scripts/aws_cost_audit.py tests/test_aws_cost_audit.py
+python -m unittest discover -s tests -v
+python scripts/check_secrets.py
+```
+
+### 6. Validate Terraform
+
+``` powershell
+terraform -chdir=terraform fmt -check -recursive
+terraform -chdir=terraform init -backend=false
+terraform -chdir=terraform validate
+```
+
+These are configuration checks, not deployment commands.
+
+### 7. Build Docker image
+
+``` powershell
+docker build -t aws-cost-audit:1.0 .
+```
+
+Supply credentials at runtime using the project's configured mount
+approach. Never bake AWS access keys into an image.
+
+## Cost and Security Safeguards
+
+-   Use a non-root identity for routine work; enable MFA.
+-   Configure billing budgets and cost alerts.
+-   Check credits, Free Tier eligibility, and current service pricing
+    before labs.
+-   Use `ap-south-1` (Mumbai) for regional labs unless a lab specifies
+    otherwise.
+-   Prefer read-only audit operations.
+-   Never commit access keys, session tokens, private keys, or sensitive
+    reports.
+-   Avoid public resources unless a reviewed lab specifically requires
+    them.
+-   Verify resources before cleanup; delete only resources confirmed
+    safe to remove.
+-   Avoid unnecessary always-on resources, NAT gateways, load balancers,
+    and Kubernetes clusters.
+-   Keep Terraform state, local backups, and generated reports out of
+    source control.
+-   Do not run `terraform apply` just to validate syntax.
+
+AWS credits are not a substitute for monitoring actual account usage and
+charges.
+
+## Completed S3 Lab
+
+The S3 lab covered bucket creation in `ap-south-1`, uploading and
+verifying a test object, enabling versioning, inspecting object
+versions, testing delete markers, removing the pre-versioning `null`
+version, permanently deleting test versions, and deleting the bucket
+after cleanup validation.
+
+The test bucket was deleted after the lab. This demonstrated that
+deleting an object in a versioned bucket does not necessarily delete its
+stored versions.
+
+## Latest Milestone: Phase 28
+
+**Commit:** `367395a` --- `Improve audit resource visibility reporting`
+
+Completed: - `UNKNOWN` status and `null` count for inaccessible resource
+categories. - JSON `resource_visibility` metadata. - Console output
+distinguishing unknown visibility from a successful zero count. -
+Regression tests for successful, partial-failure, and total-failure
+outcomes. - Updated `progress.md`.
+
+Local validation passed: - Python compilation. - 10 unit tests. -
+Secret-pattern scan across 48 tracked files. - Terraform formatting,
+initialization with backend disabled, and validation. -
+`git diff --check`.
+
+These are local results; check the remote Actions page for the GitHub
+Actions result.
+
+## Interview Talking Points
+
+**Why Boto3?** It enables repeatable inventory and reporting through AWS
+service APIs.
+
+**Why `UNKNOWN` instead of zero?** A failed API request does not prove
+that a resource category is empty. Explicit visibility prevents
+incomplete results from being presented as a successful audit.
+
+**Why Docker?** It makes the runtime and dependencies more reproducible
+across local and CI environments.
+
+**Why GitHub Actions?** Automated checks can catch syntax errors,
+regressions, secret-pattern matches, container build issues, and invalid
+Terraform configuration.
+
+**How does this help cost optimization?** Resource inventory helps
+identify resources for review, but it does not replace billing analysis
+or service-specific cost calculations.
+
+## Future Enhancements
+
+-   Integrate AWS Cost Explorer for actual spend and service-level
+    trends.
+-   Add cost recommendations with documented assumptions.
+-   Produce historical audit comparisons and trend reports.
+-   Expand resource-specific regression tests.
+-   Improve CI summaries and artifact handling.
+-   Add Terraform policy/security checks without provisioning resources.
+-   Consider optional cleanup workflows with explicit approval, dry-run
+    behavior, and safeguards.
+
+## Links
+
+-   **Repository:**
+    https://github.com/Satsaheb25/aws-cloud-cost-optimization
+-   **GitHub Actions:**
+    https://github.com/Satsaheb25/aws-cloud-cost-optimization/actions
+-   **Branch:** `master`
+-   **Regional lab region:** `ap-south-1` (Mumbai, India)
+
+------------------------------------------------------------------------
+
+*This is an active hands-on learning project. Update feature and
+validation claims as implementation evolves. No production-readiness or
+guaranteed cost-savings claims are made.*
