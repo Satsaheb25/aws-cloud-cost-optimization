@@ -336,3 +336,25 @@ See `progress.md` and `tests/test_aws_cost_audit.py` for details.
 - Status: Local validation passed; commit and CI verification pending.
 
 See `progress.md` and `tests/test_aws_cost_audit.py` for details.
+
+
+## Project Closeout — Core Scope Complete
+
+**Completed through:** Phase 36  
+**Final feature commit:** `e023ab7`
+
+### Delivered
+- Read-only AWS cost-audit automation using Python and Boto3.
+- Docker packaging for the audit tool.
+- Terraform configuration formatting and validation.
+- GitHub Actions CI/CD checks for Python, Docker, and Terraform.
+- Unit tests covering classification, report generation, and session initialization failure.
+- Secret-pattern scanning and project progress documentation.
+
+### Scope and Safety
+- No AWS infrastructure was provisioned as part of this closeout.
+- Terraform validation does not mean infrastructure was deployed.
+- EKS/Kubernetes deployment is not claimed as production-ready.
+- Confirm the latest GitHub Actions run before claiming final remote CI success.
+
+**Status:** Core learning-project scope complete; optional Phase 37 skipped.
