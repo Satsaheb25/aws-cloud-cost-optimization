@@ -750,3 +750,46 @@ A cost audit must not interpret an API permission failure as proof that no resou
 ### Next
 - Run final Python and Terraform configuration checks.
 - Review the complete diff, commit, and push the changes.
+
+
+---
+
+## Phase 31 - AWS Audit Report Contract Tests
+
+**Date:** 2026-10-27
+**Status:** Completed; GitHub Actions passed.
+
+- Added report-contract tests for required JSON fields and report readability.
+- Verified the report structure and required metadata.
+- Confirmed the corresponding GitHub Actions workflow completed successfully.
+- No AWS infrastructure changes were performed.
+
+## Phase 32 - Audit Report Contract Test Improvements
+
+**Date:** 2026-10-27
+**Status:** Local validation passed; commit and remote verification pending.
+
+### Completed
+- Added a shared contract assertion to the actual audit-status tests.
+- Checked required report fields and read-only mode.
+- Verified total checks equal successful checks plus failed checks.
+- Verified all seven audit checks are accounted for.
+- Verified audit status is PASS, PARTIAL, or FAILED.
+- Verified the number of reported errors matches the failed-check count.
+- Removed a standalone arithmetic test that did not validate a generated report.
+
+### Validation
+- Python compilation: passed.
+- Unit tests: 14 passed.
+- `git diff --check`: passed; Git displayed a line-ending warning only.
+
+### Cost and Security Safety
+- The test suite uses mocked AWS sessions and audit functions.
+- No AWS resources were created, modified, or deleted.
+- The audit remains read-only.
+
+### Next
+- Review documentation and code changes.
+- Run final Python, Terraform, and secret-scan checks.
+- Commit and push the verified changes.
+- Confirm GitHub Actions succeeds.

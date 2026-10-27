@@ -142,19 +142,6 @@ class TestAuditReports(unittest.TestCase):
         self.assertEqual(actual["region"], "ap-south-1")
         self.assertEqual(actual["check_summary"]["total_checks"], 7)
 
-    def test_check_summary_counts_are_consistent(self):
-        check_summary = {
-            "total_checks": 7,
-            "successful_checks": 5,
-            "failed_checks": 2,
-        }
-
-        self.assertEqual(
-            check_summary["total_checks"],
-            check_summary["successful_checks"]
-            + check_summary["failed_checks"],
-        )
-
     def test_csv_headers_match_report_contract(self):
         aws_cost_audit.write_csv_report([])
 
@@ -273,11 +260,37 @@ class TestAuditStatus(unittest.TestCase):
 
         return exit_code, report
 
+    def assert_report_contract(self, report):
+        required_fields = {
+            "project",
+            "region",
+            "audit_timestamp_utc",
+            "read_only",
+            "audit_status",
+            "check_summary",
+            "summary",
+            "resource_visibility",
+            "resources",
+            "errors",
+        }
+        self.assertTrue(required_fields.issubset(report.keys()))
+        self.assertIs(report["read_only"], True)
+
+        checks = report["check_summary"]
+        self.assertEqual(
+            checks["total_checks"],
+            checks["successful_checks"] + checks["failed_checks"],
+        )
+        self.assertEqual(checks["total_checks"], 7)
+        self.assertIn(report["audit_status"], {"PASS", "PARTIAL", "FAILED"})
+        self.assertEqual(len(report["errors"]), checks["failed_checks"])
+
     def test_all_checks_succeed_returns_pass(self):
         outcomes = [([], None)] * 7
 
         exit_code, report = self.run_audit_with_outcomes(outcomes)
 
+        self.assert_report_contract(report)
         self.assertEqual(exit_code, 0)
         self.assertEqual(report["audit_status"], "PASS")
         self.assertEqual(
@@ -303,6 +316,7 @@ class TestAuditStatus(unittest.TestCase):
 
         exit_code, report = self.run_audit_with_outcomes(outcomes)
 
+        self.assert_report_contract(report)
         self.assertEqual(exit_code, 1)
         self.assertEqual(report["audit_status"], "PARTIAL")
         self.assertEqual(report["check_summary"]["successful_checks"], 6)
@@ -337,6 +351,7 @@ class TestAuditStatus(unittest.TestCase):
 
         exit_code, report = self.run_audit_with_outcomes(outcomes)
 
+        self.assert_report_contract(report)
         self.assertEqual(exit_code, 1)
         self.assertEqual(report["audit_status"], "FAILED")
         self.assertEqual(report["check_summary"]["successful_checks"], 0)

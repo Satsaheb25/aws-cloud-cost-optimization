@@ -217,7 +217,7 @@ The test bucket was deleted after the lab. This demonstrated that
 deleting an object in a versioned bucket does not necessarily delete its
 stored versions.
 
-## Latest Milestone: Phase 28
+## Historical Milestone: Phase 28
 
 **Commit:** `367395a` --- `Improve audit resource visibility reporting`
 
@@ -281,3 +281,17 @@ or service-specific cost calculations.
 *This is an active hands-on learning project. Update feature and
 validation claims as implementation evolves. No production-readiness or
 guaranteed cost-savings claims are made.*
+
+
+## Latest Milestone: Phase 32
+
+**Status:** Local validation passed.
+
+- Strengthened report-contract assertions against actual generated audit reports.
+- Validated required JSON report fields, read-only mode, check totals, audit status, and error counts.
+- Replaced a weak standalone arithmetic test with assertions on PASS, PARTIAL, and FAILED audit outcomes.
+- Unit tests: 14 passed.
+- Python compilation and `git diff --check`: passed.
+- No AWS infrastructure was created, modified, or deleted.
+
+See `progress.md` and `tests/test_aws_cost_audit.py` for the project record and implementation.
