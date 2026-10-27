@@ -723,3 +723,30 @@ Review the complete code and documentation diff, then commit and push the intend
 - Run final local validation.
 - Commit and push the workflow and progress documentation.
 - Verify the GitHub Actions run.
+
+## 2026-10-27 - Phase 28: Accurate AWS Audit Visibility
+
+### Completed
+- Updated resource summaries to distinguish inaccessible AWS resource categories from confirmed zero-resource results.
+- Added `UNKNOWN` risk status and a `null` count when an audit category has an API error.
+- Added `resource_visibility` to the JSON report, including visibility status and resource count.
+- Updated console output to display `UNKNOWN` for inaccessible categories.
+- Added regression tests for successful, partial-failure, and total-failure audit outcomes.
+
+### Validation
+- Python compilation: passed.
+- Unit tests: 10 passed.
+- Secret-pattern scan: passed; 48 tracked files scanned.
+- `git diff --check`: passed.
+
+### Cost and Security Safety
+- Tests use mocked AWS outcomes.
+- No AWS resources were created, modified, or deleted for this change.
+- The audit remains read-only.
+
+### Interview Perspective
+A cost audit must not interpret an API permission failure as proof that no resources exist. Explicit visibility states prevent misleading reports and help CI pipelines distinguish complete results from partial or failed audits.
+
+### Next
+- Run final Python and Terraform configuration checks.
+- Review the complete diff, commit, and push the changes.

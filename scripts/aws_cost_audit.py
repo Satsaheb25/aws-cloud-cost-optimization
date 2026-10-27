@@ -392,6 +392,12 @@ def main():
     ]
 
     counts = {}
+    resource_visibility = {}
+
+    failed_resource_types = {
+        error["resource_type"]
+        for error in errors
+    }
 
     for resource_type in resource_types:
         count = sum(
@@ -400,9 +406,16 @@ def main():
             if resource["resource_type"] == resource_type
         )
 
+        visible = resource_type not in failed_resource_types
+
         counts[resource_type] = {
-            "count": count,
-            "risk": classify(resource_type, count),
+            "count": count if visible else None,
+            "risk": classify(resource_type, count) if visible else "UNKNOWN",
+        }
+
+        resource_visibility[resource_type] = {
+            "status": "VISIBLE" if visible else "UNKNOWN",
+            "resource_count": count if visible else None,
         }
 
     if failed_checks == 0:
@@ -424,6 +437,7 @@ def main():
             "failed_checks": failed_checks,
         },
         "summary": counts,
+        "resource_visibility": resource_visibility,
         "resources": all_resources,
         "errors": errors,
     }
@@ -435,9 +449,15 @@ def main():
     print("-" * 70)
 
     for resource_type, result in counts.items():
+        count_display = (
+            str(result["count"])
+            if result["count"] is not None
+            else "UNKNOWN"
+        )
+
         print(
             f"{resource_type:<18} "
-            f"{result['count']:<5} "
+            f"{count_display:<8} "
             f"{result['risk']}"
         )
 

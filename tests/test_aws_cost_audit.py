@@ -206,8 +206,16 @@ class TestAuditStatus(unittest.TestCase):
             },
         )
 
+        for result in report["summary"].values():
+            self.assertEqual(result["count"], 0)
+            self.assertEqual(result["risk"], "OK")
+
+        for result in report["resource_visibility"].values():
+            self.assertEqual(result["status"], "VISIBLE")
+            self.assertEqual(result["resource_count"], 0)
+
     def test_some_checks_fail_returns_partial(self):
-        error = {"resource_type": "EC2", "error": "AccessDenied"}
+        error = {"resource_type": "EC2 Instance", "error": "AccessDenied"}
         outcomes = [([], error)] + [([], None)] * 6
 
         exit_code, report = self.run_audit_with_outcomes(outcomes)
@@ -218,10 +226,34 @@ class TestAuditStatus(unittest.TestCase):
         self.assertEqual(report["check_summary"]["failed_checks"], 1)
         self.assertEqual(len(report["errors"]), 1)
 
+        self.assertIsNone(report["summary"]["EC2 Instance"]["count"])
+        self.assertEqual(
+            report["summary"]["EC2 Instance"]["risk"],
+            "UNKNOWN",
+        )
+        self.assertEqual(
+            report["resource_visibility"]["EC2 Instance"]["status"],
+            "UNKNOWN",
+        )
+        self.assertEqual(
+            report["resource_visibility"]["EBS Volume"]["status"],
+            "VISIBLE",
+        )
+
     def test_all_checks_fail_returns_failed(self):
+        resource_types = [
+            "EC2 Instance",
+            "EBS Volume",
+            "EBS Snapshot",
+            "Elastic IP",
+            "NAT Gateway",
+            "Load Balancer",
+            "S3 Bucket",
+        ]
+
         outcomes = [
             ([], {"resource_type": name, "error": "AccessDenied"})
-            for name in self.AUDIT_FUNCTIONS
+            for name in resource_types
         ]
 
         exit_code, report = self.run_audit_with_outcomes(outcomes)
@@ -230,3 +262,11 @@ class TestAuditStatus(unittest.TestCase):
         self.assertEqual(report["audit_status"], "FAILED")
         self.assertEqual(report["check_summary"]["successful_checks"], 0)
         self.assertEqual(report["check_summary"]["failed_checks"], 7)
+
+        for result in report["summary"].values():
+            self.assertIsNone(result["count"])
+            self.assertEqual(result["risk"], "UNKNOWN")
+
+        for result in report["resource_visibility"].values():
+            self.assertEqual(result["status"], "UNKNOWN")
+            self.assertIsNone(result["resource_count"])
