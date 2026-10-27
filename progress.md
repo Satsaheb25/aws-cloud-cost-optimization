@@ -697,3 +697,29 @@ Review the complete code and documentation diff, then commit and push the intend
 - Archived the EKS Terraform configuration for future learning without recreating AWS infrastructure.
 - Kept the Terraform state backup in the Git-ignored `backups/` directory.
 - Next: validate the final changes, commit and push, then verify GitHub Actions.
+
+## 2026-10-27 - Phase 26: Terraform CI Safety Gates
+
+### Completed
+- Removed workflow-wide OIDC token permission; CI retains contents read permission only.
+- Removed AWS credential configuration, identity verification, and the live Terraform plan from CI.
+- Renamed the Terraform job to Terraform Configuration Validation.
+- Retained Terraform formatting, initialization with backend disabled, and validation.
+- Preserved the Python validation, unit tests, secret scan, and Docker build checks.
+
+### Validation
+- Terraform formatting, initialization, and validation: previously passed locally.
+- Python compilation: passed.
+- Unit tests: 10 passed.
+- Secret-pattern scan: passed; 48 tracked files scanned.
+- Workflow diff review: passed; no whitespace errors.
+
+### Cost and Security Safety
+- No AWS resources were created, modified, or deleted for these workflow changes.
+- Terraform state remains local and Git-ignored.
+- CI validates Terraform configuration without AWS credentials or a live plan.
+
+### Next
+- Run final local validation.
+- Commit and push the workflow and progress documentation.
+- Verify the GitHub Actions run.

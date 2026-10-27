@@ -1,5 +1,4 @@
-﻿name: AWS Cost Optimization CI/CD
-
+name: AWS Cost Optimization CI/CD
 on:
   push:
     branches:
@@ -9,7 +8,6 @@ on:
       - master
 
 permissions:
-  id-token: write
   contents: read
 
 jobs:
@@ -51,7 +49,7 @@ jobs:
         run: docker build -t aws-cost-audit:ci .
 
   terraform:
-    name: Terraform Validation and Plan
+    name: Terraform Configuration Validation
     runs-on: ubuntu-latest
 
     defaults:
@@ -73,18 +71,3 @@ jobs:
 
       - name: Terraform Validate
         run: terraform validate
-
-      - name: Configure AWS credentials
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::872575360359:role/GitHubActionsTerraformPlanRole
-          aws-region: ap-south-1
-
-      - name: Verify AWS identity
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        run: aws sts get-caller-identity
-
-      - name: Terraform Plan
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        run: terraform plan -no-color
