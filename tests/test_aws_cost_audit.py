@@ -336,6 +336,33 @@ class TestAuditStatus(unittest.TestCase):
         self.assertIn(report["audit_status"], {"PASS", "PARTIAL", "FAILED"})
         self.assertEqual(len(report["errors"]), checks["failed_checks"])
 
+    def test_session_initialization_failure_returns_error(self):
+        with (
+            patch.object(
+                aws_cost_audit.boto3,
+                "Session",
+                side_effect=RuntimeError("simulated session failure"),
+            ),
+            patch.object(
+                aws_cost_audit,
+                "write_json_report",
+            ) as json_writer,
+            patch.object(
+                aws_cost_audit,
+                "write_csv_report",
+            ) as csv_writer,
+            patch.object(
+                aws_cost_audit,
+                "audit_ec2",
+            ) as ec2_audit,
+        ):
+            exit_code = aws_cost_audit.main()
+
+        self.assertEqual(exit_code, 1)
+        json_writer.assert_not_called()
+        csv_writer.assert_not_called()
+        ec2_audit.assert_not_called()
+
     def test_all_checks_succeed_returns_pass(self):
         outcomes = [([], None)] * 7
 

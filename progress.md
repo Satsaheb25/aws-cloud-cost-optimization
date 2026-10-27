@@ -846,3 +846,33 @@ Direct unit tests isolate cost-risk classification rules and protect them agains
 - Validation: Python compilation passed; all 23 unit tests passed; `git diff --check` passed.
 - AWS resource changes: none.
 - Status: complete; commit `68ce153` pushed to `master`; GitHub Actions passed.
+
+
+## Phase 36 - Error-Handling Test Coverage
+
+**Date:** 2026-10-27
+**Status:** Local validation passed; commit, push, and GitHub Actions verification pending.
+
+### Completed
+- Added a regression test for AWS session initialization failure.
+- Verified that the audit returns exit code 1 when session initialization fails.
+- Verified that JSON and CSV report writers are not called after initialization failure.
+- Verified that resource audits do not start after initialization failure.
+- Increased the unit test suite from 23 to 24 tests.
+
+### Validation
+- Unit tests: 24 passed.
+- `git diff --check`: passed, with a Windows line-ending warning only.
+
+### Cost and Security Safety
+- The failure is simulated with mocks; no live AWS session is created by this test.
+- No AWS resources were created, modified, or deleted.
+
+### Interview Perspective
+Testing initialization failures verifies graceful startup error handling and prevents misleading reports when the AWS session cannot be established.
+
+### Next
+- Run Python compilation and the secret-pattern scan.
+- Validate Terraform configuration without provisioning infrastructure.
+- Commit and push after all checks pass.
+- Confirm GitHub Actions succeeds.

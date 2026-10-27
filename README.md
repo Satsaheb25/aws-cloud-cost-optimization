@@ -324,3 +324,15 @@ See `progress.md` and `tests/test_aws_cost_audit.py` for details.
 - Added CSV tests for nested details, non-string values, and missing optional fields.
 - Full test suite: 23 tests passed.
 - Scope: local unit tests only; no AWS resources changed.
+
+
+## Latest Milestone: Phase 36 - Error-Handling Test Coverage
+
+- Added a regression test for AWS session initialization failure.
+- Verified exit code 1 and confirmed report writers and the EC2 audit are not called.
+- Unit tests: 24 passed.
+- `git diff --check`: passed; Git may display a Windows line-ending warning.
+- No AWS infrastructure was created, modified, or deleted.
+- Status: Local validation passed; commit and CI verification pending.
+
+See `progress.md` and `tests/test_aws_cost_audit.py` for details.
