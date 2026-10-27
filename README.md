@@ -283,7 +283,7 @@ validation claims as implementation evolves. No production-readiness or
 guaranteed cost-savings claims are made.*
 
 
-## Latest Milestone: Phase 32
+## Historical Milestone: Phase 32
 
 **Status:** Local validation passed.
 
@@ -295,3 +295,15 @@ guaranteed cost-savings claims are made.*
 - No AWS infrastructure was created, modified, or deleted.
 
 See `progress.md` and `tests/test_aws_cost_audit.py` for the project record and implementation.
+
+## Latest Milestone: Phase 33
+
+**Status:** Local validation passed; commit and CI verification pending.
+
+- Added three direct classification unit tests.
+- Tested zero-count behavior, all seven known cost-risk resource types, and the unknown-type fallback.
+- Unit tests: 17 passed.
+- Python compilation, secret scan, Terraform formatting, Terraform validation, and `git diff --check`: passed.
+- No AWS infrastructure was created, modified, or deleted.
+
+See `progress.md` and `tests/test_aws_cost_audit.py` for details.

@@ -793,3 +793,39 @@ A cost audit must not interpret an API permission failure as proof that no resou
 - Run final Python, Terraform, and secret-scan checks.
 - Commit and push the verified changes.
 - Confirm GitHub Actions succeeds.
+
+---
+
+## Phase 33 - Classification Unit Test Coverage
+
+**Date:** 2026-10-27
+**Status:** Local validation passed; commit and CI verification pending.
+
+### Completed
+- Added three direct unit tests for the `classify()` function.
+- Verified zero-count resources return `OK`, including an unlisted type.
+- Verified all seven known cost-risk resource types return `POTENTIAL COST` when the count is positive.
+- Verified an unlisted resource type with a positive count returns `REVIEW`.
+- Increased the test suite from 14 to 17 tests without changing production audit logic.
+
+### Validation
+- Python compilation: passed.
+- Unit tests: 17 passed.
+- Secret-pattern scan: passed; 48 tracked files scanned.
+- Terraform formatting check: passed.
+- Terraform validation: passed.
+- `git diff --check`: passed; Git displayed a line-ending warning only.
+
+### Cost and Security Safety
+- Classification tests exercise local Python logic.
+- No new dependencies were installed.
+- No AWS resources were created, modified, or deleted.
+- The audit remains read-only.
+
+### Interview Perspective
+Direct unit tests isolate cost-risk classification rules and protect them against regressions. Testing known resource types, zero counts, and fallback behavior helps keep cost audit results consistent without requiring live AWS resources.
+
+### Next
+- Review the README and progress documentation changes.
+- Commit and push Phase 33.
+- Verify the GitHub Actions result for the new commit.

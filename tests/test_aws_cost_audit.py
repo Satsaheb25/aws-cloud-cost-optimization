@@ -476,3 +476,48 @@ class TestAuditFailureRegression(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestClassification(unittest.TestCase):
+    def test_zero_count_is_ok_for_known_and_unknown_types(self):
+        resource_types = [
+            "EC2 Instance",
+            "EBS Volume",
+            "EBS Snapshot",
+            "Elastic IP",
+            "NAT Gateway",
+            "Load Balancer",
+            "S3 Bucket",
+            "Unlisted Resource",
+        ]
+
+        for resource_type in resource_types:
+            with self.subTest(resource_type=resource_type):
+                self.assertEqual(
+                    aws_cost_audit.classify(resource_type, 0),
+                    "OK",
+                )
+
+    def test_positive_count_for_cost_resources_is_potential_cost(self):
+        resource_types = [
+            "EC2 Instance",
+            "EBS Volume",
+            "EBS Snapshot",
+            "Elastic IP",
+            "NAT Gateway",
+            "Load Balancer",
+            "S3 Bucket",
+        ]
+
+        for resource_type in resource_types:
+            with self.subTest(resource_type=resource_type):
+                self.assertEqual(
+                    aws_cost_audit.classify(resource_type, 1),
+                    "POTENTIAL COST",
+                )
+
+    def test_positive_count_for_unlisted_type_requires_review(self):
+        self.assertEqual(
+            aws_cost_audit.classify("Unlisted Resource", 1),
+            "REVIEW",
+        )
