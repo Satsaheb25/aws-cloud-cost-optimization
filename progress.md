@@ -687,3 +687,13 @@ A reliable audit must distinguish a complete pass from partial visibility and to
 ### Next
 
 Review the complete code and documentation diff, then commit and push the intended Phase 24 changes after approval. Verify GitHub Actions.
+
+## 2026-10-27 — Terraform recovery and Docker validation
+
+- Confirmed the root Terraform configuration initializes and validates.
+- Built the local Docker image `aws-cost-audit:final`.
+- Confirmed the audit script compiles inside the Docker image.
+- Investigated the retired EKS/VPC deployment and removed stale module resources from Terraform state.
+- Archived the EKS Terraform configuration for future learning without recreating AWS infrastructure.
+- Kept the Terraform state backup in the Git-ignored `backups/` directory.
+- Next: validate the final changes, commit and push, then verify GitHub Actions.

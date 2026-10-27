@@ -24,3 +24,6 @@ __pycache__/
 *.tfstate.*
 terraform-state-backup-*.json
 terraform/eks/stale-state-addresses.txt
+
+# Local Terraform state backups
+backups/

@@ -1,4 +1,4 @@
-# Phase 18 — Terraform EKS Infrastructure as Code
+﻿# Phase 18 ΓÇö Terraform EKS Infrastructure as Code
 
 ## Objective
 
@@ -127,6 +127,21 @@ Before running `terraform apply`, review the Terraform plan carefully and confir
 
 After a temporary lab deployment, destroy resources that are no longer required:
 
-```powershell`r`nterraform -chdir=terraform/eks destroy`r`n```
+```powershell
+terraform -chdir=terraform/eks destroy
+```
 
 Do not run `destroy` unless the infrastructure was actually created by this Terraform configuration and you intend to remove it.
+
+## Retirement status — October 2026
+
+The original EKS/VPC deployment has been retired after AWS drift
+investigation confirmed that the cluster and custom VPC resources
+were absent.
+
+The Terraform configuration is preserved in `archive/` for learning.
+The stale EKS/VPC resources have been removed from the active Terraform
+state. No infrastructure was recreated during this recovery.
+
+The local Terraform state backup is kept under the ignored `backups/`
+directory and must never be committed to Git.
