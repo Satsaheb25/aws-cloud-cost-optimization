@@ -296,9 +296,9 @@ guaranteed cost-savings claims are made.*
 
 See `progress.md` and `tests/test_aws_cost_audit.py` for the project record and implementation.
 
-## Latest Milestone: Phase 33
+## Historical Milestone: Phase 33
 
-**Status:** Local validation passed; commit and CI verification pending.
+**Status:** Completed; commit pushed and GitHub Actions passed.
 
 - Added three direct classification unit tests.
 - Tested zero-count behavior, all seven known cost-risk resource types, and the unknown-type fallback.
@@ -307,3 +307,14 @@ See `progress.md` and `tests/test_aws_cost_audit.py` for the project record and 
 - No AWS infrastructure was created, modified, or deleted.
 
 See `progress.md` and `tests/test_aws_cost_audit.py` for details.
+
+
+## Latest Milestone: Phase 34 ? Classification Enrichment Tests
+
+- Added three unit tests for `add_classification()`.
+- Verified classification across multiple resources.
+- Verified existing resource fields are preserved.
+- Verified empty resource lists are handled safely.
+- Validation: Python compilation, all 20 unit tests, and `git diff --check` passed.
+- Safety: no AWS resources created, modified, or deleted.
+- Status: Local validation passed; commit and CI verification pending.

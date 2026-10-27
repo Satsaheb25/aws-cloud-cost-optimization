@@ -521,3 +521,33 @@ class TestClassification(unittest.TestCase):
             aws_cost_audit.classify("Unlisted Resource", 1),
             "REVIEW",
         )
+
+
+    def test_add_classification_handles_multiple_resources(self):
+        resources = [
+            {"resource_type": "EC2 Instance", "resource_id": "i-test123",
+             "region": "ap-south-1"},
+            {"resource_type": "Unlisted Resource", "resource_id": "custom-test",
+             "region": "ap-south-1"},
+        ]
+        aws_cost_audit.add_classification(resources)
+        self.assertEqual(resources[0]["risk"], "POTENTIAL COST")
+        self.assertEqual(resources[1]["risk"], "REVIEW")
+
+    def test_add_classification_preserves_existing_fields(self):
+        resource = {
+            "resource_type": "S3 Bucket",
+            "resource_id": "test-bucket",
+            "region": "ap-south-1",
+        }
+        aws_cost_audit.add_classification([resource])
+        self.assertEqual(resource["resource_id"], "test-bucket")
+        self.assertEqual(resource["region"], "ap-south-1")
+        self.assertEqual(resource["resource_type"], "S3 Bucket")
+        self.assertEqual(resource["risk"], "POTENTIAL COST")
+
+    def test_add_classification_handles_empty_list(self):
+        resources = []
+        result = aws_cost_audit.add_classification(resources)
+        self.assertIsNone(result)
+        self.assertEqual(resources, [])
