@@ -318,3 +318,9 @@ See `progress.md` and `tests/test_aws_cost_audit.py` for details.
 - Validation: Python compilation, all 20 unit tests, and `git diff --check` passed.
 - Safety: no AWS resources created, modified, or deleted.
 - Status: Local validation passed; commit and CI verification pending.
+
+### Phase 35 ? Report-Generation Test Coverage
+- Added tests for JSON Unicode and nested-data round trips.
+- Added CSV tests for nested details, non-string values, and missing optional fields.
+- Full test suite: 23 tests passed.
+- Scope: local unit tests only; no AWS resources changed.

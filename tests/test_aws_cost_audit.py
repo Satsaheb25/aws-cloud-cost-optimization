@@ -162,6 +162,57 @@ class TestAuditReports(unittest.TestCase):
             )
 
 
+    def test_json_report_preserves_unicode_and_nested_data(self):
+        report = {
+            "project": "AWS Cost Optimization",
+            "note": "Mumbai ? ???? ???????",
+            "summary": {"EC2": {"count": 2, "risk": "POTENTIAL COST"}},
+            "resources": [{"details": {"tags": ["learning", "cost-safe"]}}],
+        }
+
+        aws_cost_audit.write_json_report(report)
+
+        with self.json_report.open(encoding="utf-8") as file:
+            actual = json.load(file)
+
+        self.assertEqual(actual, report)
+        self.assertEqual(actual["note"], "Mumbai ? ???? ???????")
+        self.assertEqual(actual["summary"]["EC2"]["count"], 2)
+
+    def test_csv_report_serializes_nested_details_and_non_string_values(self):
+        resources = [{
+            "resource_type": "EC2 Instance",
+            "resource_id": "i-test123",
+            "state": "running",
+            "risk": "POTENTIAL COST",
+            "details": {"count": 2, "enabled": True, "tags": ["lab", "test"]},
+        }]
+
+        aws_cost_audit.write_csv_report(resources)
+
+        with self.csv_report.open(newline="", encoding="utf-8") as file:
+            rows = list(csv.DictReader(file))
+
+        self.assertEqual(len(rows), 1)
+        details = json.loads(rows[0]["details"])
+        self.assertEqual(details["count"], 2)
+        self.assertIs(details["enabled"], True)
+        self.assertEqual(details["tags"], ["lab", "test"])
+
+    def test_csv_report_handles_missing_optional_resource_fields(self):
+        aws_cost_audit.write_csv_report([{"resource_type": "S3 Bucket"}])
+
+        with self.csv_report.open(newline="", encoding="utf-8") as file:
+            rows = list(csv.DictReader(file))
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["resource_type"], "S3 Bucket")
+        self.assertEqual(rows[0]["resource_id"], "")
+        self.assertEqual(rows[0]["state"], "")
+        self.assertEqual(rows[0]["risk"], "")
+        self.assertEqual(json.loads(rows[0]["details"]), {})
+
+
 class TestSafeCall(unittest.TestCase):
     def test_successful_call_returns_result_without_error(self):
         result, error = aws_cost_audit.safe_call(

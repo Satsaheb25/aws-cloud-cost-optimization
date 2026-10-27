@@ -840,3 +840,9 @@ Direct unit tests isolate cost-risk classification rules and protect them agains
 - Validation: `py_compile` passed; all 20 unit tests passed; `git diff --check` passed.
 - AWS safety: no infrastructure provisioning, modification, or deletion.
 - Status: Local validation passed; commit and CI verification pending.
+
+## Phase 35 ? Report-Generation Test Coverage
+- Added 3 tests covering JSON Unicode/nested data and CSV serialization/missing fields.
+- Validation: Python compilation passed; all 23 unit tests passed; `git diff --check` passed.
+- AWS resource changes: none.
+- Status: local validation passed; commit, push, and CI verification pending.
