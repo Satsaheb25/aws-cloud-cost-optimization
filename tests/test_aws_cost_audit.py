@@ -270,3 +270,98 @@ class TestAuditStatus(unittest.TestCase):
         for result in report["resource_visibility"].values():
             self.assertEqual(result["status"], "UNKNOWN")
             self.assertIsNone(result["resource_count"])
+class TestAuditFailureRegression(unittest.TestCase):
+    AUDIT_FUNCTIONS = (
+        "audit_ec2",
+        "audit_ebs",
+        "audit_snapshots",
+        "audit_elastic_ips",
+        "audit_nat_gateways",
+        "audit_load_balancers",
+        "audit_s3",
+    )
+
+    def run_audit(self, overrides):
+        with (
+            patch.object(aws_cost_audit.boto3, "Session") as session_factory,
+            patch.object(aws_cost_audit, "write_json_report") as json_writer,
+            patch.object(aws_cost_audit, "write_csv_report") as csv_writer,
+            ExitStack() as stack,
+        ):
+            session_factory.return_value.client.return_value = object()
+
+            for name in self.AUDIT_FUNCTIONS:
+                outcome = overrides.get(name, ([], None))
+
+                if isinstance(outcome, BaseException):
+                    stack.enter_context(
+                        patch.object(
+                            aws_cost_audit,
+                            name,
+                            side_effect=outcome,
+                        )
+                    )
+                else:
+                    stack.enter_context(
+                        patch.object(
+                            aws_cost_audit,
+                            name,
+                            return_value=outcome,
+                        )
+                    )
+
+            exit_code = aws_cost_audit.main()
+
+        return (
+            exit_code,
+            json_writer.call_args.args[0],
+            csv_writer.call_args.args[0],
+        )
+
+    def test_partial_failure_keeps_csv_resources_and_json_visibility_consistent(self):
+        ec2_error = {
+            "resource_type": "EC2 Instance",
+            "error": "AccessDenied",
+        }
+        volume = {
+            "resource_type": "EBS Volume",
+            "resource_id": "vol-test123",
+            "state": "available",
+            "details": {"size_gib": 8},
+        }
+
+        exit_code, report, csv_resources = self.run_audit(
+            {
+                "audit_ec2": ([], ec2_error),
+                "audit_ebs": ([volume], None),
+            }
+        )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(report["audit_status"], "PARTIAL")
+        self.assertIsNone(report["summary"]["EC2 Instance"]["count"])
+        self.assertEqual(
+            report["resource_visibility"]["EC2 Instance"]["status"],
+            "UNKNOWN",
+        )
+        self.assertEqual(report["summary"]["EBS Volume"]["count"], 1)
+        self.assertEqual(
+            [item["resource_id"] for item in csv_resources],
+            ["vol-test123"],
+        )
+
+    def test_unexpected_audit_exception_marks_resource_unknown(self):
+        exit_code, report, _ = self.run_audit(
+            {
+                "audit_ec2": RuntimeError("simulated audit failure"),
+            }
+        )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(report["audit_status"], "PARTIAL")
+        self.assertIsNone(report["summary"]["EC2 Instance"]["count"])
+        self.assertEqual(
+            report["resource_visibility"]["EC2 Instance"]["status"],
+            "UNKNOWN",
+        )
+        self.assertTrue(report["errors"])

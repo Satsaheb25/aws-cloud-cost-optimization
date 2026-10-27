@@ -343,13 +343,13 @@ def main():
         return 1
 
     audit_functions = [
-        ("EC2", lambda: audit_ec2(ec2)),
-        ("EBS", lambda: audit_ebs(ec2)),
-        ("Snapshots", lambda: audit_snapshots(ec2)),
-        ("Elastic IPs", lambda: audit_elastic_ips(ec2)),
-        ("NAT Gateways", lambda: audit_nat_gateways(ec2)),
-        ("Load Balancers", lambda: audit_load_balancers(elbv2)),
-        ("S3", lambda: audit_s3(s3)),
+        ("EC2 Instance", lambda: audit_ec2(ec2)),
+        ("EBS Volume", lambda: audit_ebs(ec2)),
+        ("EBS Snapshot", lambda: audit_snapshots(ec2)),
+        ("Elastic IP", lambda: audit_elastic_ips(ec2)),
+        ("NAT Gateway", lambda: audit_nat_gateways(ec2)),
+        ("Load Balancer", lambda: audit_load_balancers(elbv2)),
+        ("S3 Bucket", lambda: audit_s3(s3)),
     ]
 
     all_resources = []
@@ -358,7 +358,7 @@ def main():
     successful_checks = 0
     failed_checks = 0
 
-    for name, audit_function in audit_functions:
+    for resource_type, audit_function in audit_functions:
         try:
             resources, error = audit_function()
 
@@ -375,8 +375,8 @@ def main():
         except Exception as exc:
             errors.append(
                 {
-                    "resource_type": name,
-                    "error": str(exc),
+                    "resource_type": resource_type,
+                    "error": f"Unexpected audit error: {exc}",
                 }
             )
             failed_checks += 1
